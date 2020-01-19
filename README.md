@@ -57,16 +57,18 @@ def load_data(path, test_size):                                        path變�
     for file_path in POSSIBLE_LABELS:                                  迴圈會依序從POSSIBLE_LABELS取得元素，並將元素指定給file_path，<br/>
                                                                        再執行迴圈裡的內容，直到序列每一元素都被取出過為止。
         pattern = re.compile("(.+(?:\/|\\\\))?(\w+)(?:\/|\\\\)([^_]+)_.+wav") 
-        pattern(編譯時用的表達式字符串):正規表示式樣式，為用來描述或者匹配一系列符合某個句法規則的字串<br/>
-        re.compile用來將正則表達式轉換爲模式對象<br/>
-        使用( )括住的稱為子運算式，可以用來定義運算子的範圍和優先度，每個子運算式匹配的結果稱為群組(group)<br/>
-        "\"將下一個字元標記為一個特殊字元<br/>
-        "?"示前面的字元最多只可以出現一次<br/>
-        "\w+"示匹配包括底線的任何單詞字元和加號本身字符1次，"+"等價於{1,}<br/>
-        [^_]表示優先匹配除了"_"以外的字符串<br/>
+        pattern(編譯時用的表達式字符串):正規表示式樣式，為用來描述或者匹配一系列符合某個句法規則的字串
+        re.compile用來將正則表達式轉換爲模式對象
+        使用( )括住的稱為子運算式，可以用來定義運算子的範圍和優先度，每個子運算式匹配的結果稱為群組(group)
+        "\"將下一個字元標記為一個特殊字元
+        "?"示前面的字元最多只可以出現一次
+        "\w+"示匹配包括底線的任何單詞字元和加號本身字符1次，"+"等價於{1,}
+        [^_]表示優先匹配除了"_"以外的字符串
         "+"表示前面的字元必須至少出現一次
         r = re.match(pattern, file_path)                                如果能夠在POSSIBLE_LABELS找到任意個匹配pattern的正規樣式，就返回一個相應的匹配對象
-        r_label, r_file = r.group(2), r.group(3)                        通過group(表達式中捕獲群的數量)我們可以選擇匹配到的字符串中「需要」的部分<br/>                                       group(0)表示匹配到的整個字符串<br/>                                              group(數字)表示在()中的子字符串                                                  
+        r_label, r_file = r.group(2), r.group(3)                        通過group(表達式中捕獲群的數量)我們可以選擇匹配到的字符串中「需要」的部分                                       
+        group(0)表示匹配到的整個字符串                                              
+        group(數字)表示在()中的子字符串                                                  
         if (r_label == '_background_noise_'):
             r_label = 'silence'
         if r_label not in labels:
@@ -80,7 +82,7 @@ def load_data(path, test_size):                                        path變�
     
     np_sample = np.array(LABEL)
     
-    train, valid = train_test_split(np_sample, test_size = test_size)  從./train中按比例隨機選取訓練數據集和驗證數據集
+    train, valid = train_test_split(np_sample, test_size = test_size)    從./train中按比例隨機選取訓練數據集和驗證數據集
     
     train_df = pd.DataFrame(train, columns = columns_list)
     valid_df = pd.DataFrame(valid, columns = columns_list)
