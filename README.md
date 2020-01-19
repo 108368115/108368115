@@ -8,8 +8,7 @@
 ## 2.檔案說明
 ##### ./train -->訓練數據集
 ##### ./test  -->測試數據集
-##### -->執行檔
-##### [Data source](https://www.kaggle.com/c/machine-learning-ntut-2019-speech-recognition/data)
+##### [Data source](https://drive.google.com/open?id=1aqGd61XBvthmiv3DRQbcMPVW3mwT7XGF)
 ## 3.用法說明
 ##### 1. 設定環境變數。
 ```python
@@ -47,23 +46,27 @@ id2name = {i: name for i, name in enumerate(labels)}
 name2id = {name: i for i, name in id2name.items()}
 test_size = 0.2     提取20%的訓練數據集作為驗證使用
 ```
-##### 4. 載入訓練數據集
+##### 4. 讀取音檔並生成訓練集和驗證集。
 ```python
-train_df, valid_df = load_data("H:/MachineLearning/speech-recognition/ntut speech recognition/train/train/", test_size)
-```
-##### 5. 讀取音檔並生成訓練集和驗證集。
-```python
-def load_data(path, test_size):
+def load_data(path, test_size):                                        path變數=./train訓練數據集位址 
     
     POSSIBLE_LABELS = glob(path + 'audio/*/*wav')                      讀取./audio路徑下所有的.wav音檔
     LABEL = []
-    columns_list = ['label', 'label_id', 'user_id', 'wav_file']        設置列表項目 
+    columns_list = ['label', 'label_id', 'user_id', 'wav_file']        自設列表的列向名稱 
     
-    for file_path in POSSIBLE_LABELS:
-        pattern = re.compile("(.+\/)?(\w+)\/([^_]+)_.+wav")
-        r = re.match(pattern, file_path)
-        
-        r_label, r_file = r.group(2), r.group(3)
+    for file_path in POSSIBLE_LABELS:                                  迴圈會依序從POSSIBLE_LABELS取得元素，並將元素指定給file_path，<br/>
+                                                                       再執行迴圈裡的內容，直到序列每一元素都被取出過為止。
+        pattern = re.compile("(.+(?:\/|\\\\))?(\w+)(?:\/|\\\\)([^_]+)_.+wav") 
+        pattern(編譯時用的表達式字符串):正規表示式樣式，為用來描述或者匹配一系列符合某個句法規則的字串<br/>
+        re.compile用來將正則表達式轉換爲模式對象<br/>
+        使用( )括住的稱為子運算式，可以用來定義運算子的範圍和優先度，每個子運算式匹配的結果稱為群組(group)<br/>
+        "\"將下一個字元標記為一個特殊字元<br/>
+        "?"示前面的字元最多只可以出現一次<br/>
+        "\w+"示匹配包括底線的任何單詞字元和加號本身字符1次，"+"等價於{1,}<br/>
+        [^_]表示優先匹配除了"_"以外的字符串<br/>
+        "+"表示前面的字元必須至少出現一次
+        r = re.match(pattern, file_path)                                如果能夠在POSSIBLE_LABELS找到任意個匹配pattern的正規樣式，就返回一個相應的匹配對象
+        r_label, r_file = r.group(2), r.group(3)                        通過group(表達式中捕獲群的數量)我們可以選擇匹配到的字符串中「需要」的部分<br/>                                       group(0)表示匹配到的整個字符串<br/>                                              group(數字)表示在()中的子字符串                                                  
         if (r_label == '_background_noise_'):
             r_label = 'silence'
         if r_label not in labels:
@@ -86,9 +89,28 @@ def load_data(path, test_size):
     return train_df, valid_df
 ```
 ```There are 43790 train and 10948 val samples```
+##### 5. 載入訓練數據集。
+```python
+train_df, valid_df = load_data("H:/MachineLearning/speech-recognition/ntut speech recognition/train/train/", test_size)
+```
 ##### 6. 訓練集標籤。
 ```python
 train_df.label.value_counts()
+```
+```
+unknown    27733
+up          1655
+yes         1616
+down        1613
+off         1611
+no          1607
+on          1601
+left        1596
+go          1591
+stop        1586
+right       1575
+silence        6
+Name: label, dtype: int64
 ```
 ##### 7. 訓練集對silence標籤進行分類。
 ```python
@@ -99,19 +121,64 @@ print (silence_files)                                   印出符合silence標�
 print ("--------------------------------------")
 print (train_df)                                        印出不符合silence標籤的音檔資訊
 ```
+```
+--------------------------------------
+silence_files:          label label_id   user_id  \
+1232   silence       10      pink   
+1935   silence       10     doing   
+11657  silence       10     white   
+20930  silence       10   running   
+24215  silence       10      dude   
+36127  silence       10  exercise   
+
+                                                wav_file  
+1232   E:/北科研究所/機器學習/Speech/speech recognition/ntut s...  
+1935   E:/北科研究所/機器學習/Speech/speech recognition/ntut s...  
+11657  E:/北科研究所/機器學習/Speech/speech recognition/ntut s...  
+20930  E:/北科研究所/機器學習/Speech/speech recognition/ntut s...  
+24215  E:/北科研究所/機器學習/Speech/speech recognition/ntut s...  
+36127  E:/北科研究所/機器學習/Speech/speech recognition/ntut s...  
+--------------------------------------
+train_df:
+          label label_id   user_id  \
+0      unknown       11  7d8babdb   
+1         left        4  6c9223bd   
+2      unknown       11  45adf84a   
+3         stop        8  f19c1390   
+4      unknown       11  520e8c0e   
+...        ...      ...       ...   
+43785       go        9  590750e8   
+43786  unknown       11  0e4d22f1   
+43787      yes        0  1b63157b   
+43788       up        2  73124b26   
+43789  unknown       11  b16f2d0d   
+
+                                                wav_file  
+0      E:/北科研究所/機器學習/Speech/speech recognition/ntut s...  
+1      E:/北科研究所/機器學習/Speech/speech recognition/ntut s...  
+2      E:/北科研究所/機器學習/Speech/speech recognition/ntut s...  
+3      E:/北科研究所/機器學習/Speech/speech recognition/ntut s...  
+4      E:/北科研究所/機器學習/Speech/speech recognition/ntut s...  
+...                                                  ...  
+43785  E:/北科研究所/機器學習/Speech/speech recognition/ntut s...  
+43786  E:/北科研究所/機器學習/Speech/speech recognition/ntut s...  
+43787  E:/北科研究所/機器學習/Speech/speech recognition/ntut s...  
+43788  E:/北科研究所/機器學習/Speech/speech recognition/ntut s...  
+43789  E:/北科研究所/機器學習/Speech/speech recognition/ntut s...  
+
+[43784 rows x 4 columns]
+```
 ##### 8. 處理.wav檔。
 ```python
 def read_wav_file(fname):
     _, wav = wavfile.read(fname)
     wav = wav.astype(np.float32) / np.iinfo(np.int16).max
     return wav
-```
-##### 9. 。
-```python
-silence_data = np.concatenate([read_wav_file(x) for x in silence_files.wav_file.values])
+    silence_data = np.concatenate([read_wav_file(x) for x in silence_files.wav_file.values])
 silence_data.shape
 ```
-##### 10. 。
+```(6390371,)```
+##### 9. 定義模型架構。
 ```python
 def process_wav_file(fname):
     wav = read_wav_file(fname)
@@ -136,7 +203,7 @@ def process_wav_file(fname):
     
     return np.stack([phase, amp], axis = 2)
 ```
-##### 11. 。
+##### 10. 定義訓練模型架構。
 ```python
 def train_generator(train_batch_size):
     while True:
@@ -154,7 +221,7 @@ def train_generator(train_batch_size):
             y_batch = to_categorical(y_batch, num_classes = len(labels))
             yield x_batch, y_batch
 ```
-##### 12. 。
+##### 11. 定義驗證模型架構。
 ```python
 def valid_generator(val_batch_size):
     while True:
@@ -171,7 +238,7 @@ def valid_generator(val_batch_size):
             y_batch = to_categorical(y_batch, num_classes = len(labels))
             yield x_batch, y_batch
 ```
-##### 13. 建立模型。
+##### 12. 建立模型。
 ```python
 x_in = Input(shape = (257,98,2))
 x = BatchNormalization()(x_in)
@@ -193,7 +260,67 @@ model = Model(inputs = x_in, outputs = x)
 model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'])
 model.summary()
 ```
-##### 14. 。
+```
+Model: "model_1"
+__________________________________________________________________________________________________
+Layer (type)                    Output Shape         Param #     Connected to                     
+==================================================================================================
+input_1 (InputLayer)            (None, 257, 98, 2)   0                                            
+__________________________________________________________________________________________________
+batch_normalization_1 (BatchNor (None, 257, 98, 2)   8           input_1[0][0]                    
+__________________________________________________________________________________________________
+conv2d_1 (Conv2D)               (None, 255, 96, 16)  304         batch_normalization_1[0][0]      
+__________________________________________________________________________________________________
+activation_1 (Activation)       (None, 255, 96, 16)  0           conv2d_1[0][0]                   
+__________________________________________________________________________________________________
+batch_normalization_2 (BatchNor (None, 255, 96, 16)  64          activation_1[0][0]               
+__________________________________________________________________________________________________
+max_pooling2d_1 (MaxPooling2D)  (None, 127, 48, 16)  0           batch_normalization_2[0][0]      
+__________________________________________________________________________________________________
+conv2d_2 (Conv2D)               (None, 125, 46, 32)  4640        max_pooling2d_1[0][0]            
+__________________________________________________________________________________________________
+activation_2 (Activation)       (None, 125, 46, 32)  0           conv2d_2[0][0]                   
+__________________________________________________________________________________________________
+batch_normalization_3 (BatchNor (None, 125, 46, 32)  128         activation_2[0][0]               
+__________________________________________________________________________________________________
+max_pooling2d_2 (MaxPooling2D)  (None, 62, 23, 32)   0           batch_normalization_3[0][0]      
+__________________________________________________________________________________________________
+conv2d_3 (Conv2D)               (None, 60, 21, 64)   18496       max_pooling2d_2[0][0]            
+__________________________________________________________________________________________________
+activation_3 (Activation)       (None, 60, 21, 64)   0           conv2d_3[0][0]                   
+__________________________________________________________________________________________________
+batch_normalization_4 (BatchNor (None, 60, 21, 64)   256         activation_3[0][0]               
+__________________________________________________________________________________________________
+max_pooling2d_3 (MaxPooling2D)  (None, 30, 10, 64)   0           batch_normalization_4[0][0]      
+__________________________________________________________________________________________________
+conv2d_4 (Conv2D)               (None, 28, 8, 128)   73856       max_pooling2d_3[0][0]            
+__________________________________________________________________________________________________
+activation_4 (Activation)       (None, 28, 8, 128)   0           conv2d_4[0][0]                   
+__________________________________________________________________________________________________
+batch_normalization_5 (BatchNor (None, 28, 8, 128)   512         activation_4[0][0]               
+__________________________________________________________________________________________________
+max_pooling2d_4 (MaxPooling2D)  (None, 14, 4, 128)   0           batch_normalization_5[0][0]      
+__________________________________________________________________________________________________
+conv2d_5 (Conv2D)               (None, 14, 4, 128)   16512       max_pooling2d_4[0][0]            
+__________________________________________________________________________________________________
+global_average_pooling2d_1 (Glo (None, 128)          0           conv2d_5[0][0]                   
+__________________________________________________________________________________________________
+global_max_pooling2d_1 (GlobalM (None, 128)          0           conv2d_5[0][0]                   
+__________________________________________________________________________________________________
+concatenate_1 (Concatenate)     (None, 256)          0           global_average_pooling2d_1[0][0] 
+                                                                 global_max_pooling2d_1[0][0]     
+__________________________________________________________________________________________________
+dense_1 (Dense)                 (None, 256)          65792       concatenate_1[0][0]              
+__________________________________________________________________________________________________
+dropout_1 (Dropout)             (None, 256)          0           dense_1[0][0]                    
+__________________________________________________________________________________________________
+dense_2 (Dense)                 (None, 12)           3084        dropout_1[0][0]                  
+==================================================================================================
+Total params: 183,652
+Trainable params: 183,168
+Non-trainable params: 484
+```
+##### 13. 設定callbacks特定操作。
 ```python
 callbacks = [EarlyStopping(monitor='val_loss',
                            patience=5,
@@ -223,15 +350,24 @@ history = model.fit_generator(generator=train_generator(64),
                               validation_data=valid_generator(64),
                               validation_steps=int(np.ceil(valid_df.shape[0]/64)))
 ```
-##### 16. 。
+```
+Epoch 1/20
+344/344 [==============================] - 76s - loss: 2.3986 - acc: 0.1352 - val_loss: 2.4137 - val_acc: 0.0535
+Epoch 2/20
+344/344 [==============================] - 69s - loss: 1.3059 - acc: 0.5475 - val_loss: 2.5465 - val_acc: 0.1973
+Epoch 3/20
+344/344 [==============================] - 68s - loss: 0.7153 - acc: 0.7631 - val_loss: 1.1454 - val_acc: 0.5693
+...
+```
+##### 16. 儲存 Model Weight。
 ```python
 model.load_weights('./train/weight/starter.hdf5')
 ```
-##### 17. 。
+##### 17. 載入測試數據集。
 ```python
 test_paths = glob(os.path.join('./', 'test/*wav'))
 ```
-##### 18. 。
+##### 18. 預測 Label。
 ```python
 def test_generator(test_batch_size):
     while True:
@@ -243,9 +379,7 @@ def test_generator(test_batch_size):
                 x_batch.append(process_wav_file(x))
             x_batch = np.array(x_batch)
             yield x_batch
-```
-##### 19. 。
-```python
+
 predictions = model.predict_generator(test_generator(100), int(np.ceil(len(test_paths)/64)))
 
 classes = np.argmax(predictions, axis=1)
@@ -255,11 +389,10 @@ for i in range(len(test_paths)):
     fname, label = os.path.basename(test_paths[i]), id2name[classes[i]]
     submission[fname] = label
 ```
-##### 20. 。
+##### 20. 將預測結果儲存成 csv檔。
 ```python
 with open('starter_submission.csv', 'w') as fout:
     fout.write('fname,label\n')
     for fname, label in submission.items():
         fout.write('{},{}\n'.format(fname, label))
 ```
-## 4.結果分析
