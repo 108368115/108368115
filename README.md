@@ -343,7 +343,7 @@ callbacks = [EarlyStopping(monitor='val_loss',
                              mode='min'),
              TQDMNotebookCallback()]
 ```             
-##### 15. 訓練模型。
+##### 14. 訓練模型。
 ```python
 history = model.fit_generator(generator=train_generator(64),
                               steps_per_epoch=344,
@@ -362,15 +362,15 @@ Epoch 3/20
 344/344 [==============================] - 68s - loss: 0.7153 - acc: 0.7631 - val_loss: 1.1454 - val_acc: 0.5693
 ...
 ```
-##### 16. 儲存 Model Weight。
+##### 15. 儲存 Model Weight。
 ```python
 model.load_weights('H:/MachineLearning/weight/starter.hdf5')
 ```
-##### 17. 載入測試數據集。
+##### 16. 載入測試數據集。
 ```python
 test_paths = glob(os.path.join('H:/MachineLearning/speech-recognition/ntut speech recognition/test/test/*wav'))
 ```
-##### 18. 預測 Label。
+##### 17. 預測 Label。
 ```python
 def test_generator(test_batch_size):
     while True:
@@ -392,7 +392,7 @@ for i in range(len(test_paths)):
     fname, label = os.path.basename(test_paths[i]), id2name[classes[i]]
     submission[fname] = label
 ```
-##### 20. 將預測結果儲存成 csv檔。
+##### 18. 將預測結果儲存成 csv檔。
 ```python
 with open('submission.csv', 'w') as fout:
     fout.write('fname,label\n')
